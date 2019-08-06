@@ -1,0 +1,26 @@
+#! /bin/sh
+
+#Obtain basic info
+
+#CPU
+NumOfCPUs=`cat /proc/cpuinfo | grep "processor"|wc -l`
+cpuMHz=`cat /proc/cpuinfo | grep "cpu MHz"|tail -1|sed -e 's/\t/ /g' |sed -E -e 's/ +/ /g'| cut -d" " -f4`
+
+#RAM
+RAMinkB=`cat /proc/meminfo | grep "MemTotal:" | sed -e 's/\t/ /g'|sed -E -e 's/ +/ /g' | cut -d" " -f2`
+
+#chek if system is Red Hat or other linux
+if [ -e /etc/redhat-release ] 
+then
+  osinfo=`cat /etc/redhat-release`
+else
+  osinfo=`uname -a`
+fi 
+
+#Print out the info
+echo "Hostname: `hostname`"
+echo "CPU:      $NumOfCPUs CPUs @ $cpuMHz MHz"
+echo "RAM:      $RAMinkB kB"
+echo "OS:       $osinfo"
+echo "FileSystems: "
+df -h
