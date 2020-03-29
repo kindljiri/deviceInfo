@@ -1,26 +1,47 @@
 #! /bin/sh
 
+# Version: 20200329
+# Author: Jiri Kindl, kindl_jiri@yahoo.com
+
 #Obtain basic info
 
 #CPU
-NumOfCPUs=`cat /proc/cpuinfo | grep "processor"|wc -l`
-cpuMHz=`cat /proc/cpuinfo | grep "cpu MHz"|tail -1|sed -e 's/\t/ /g' |sed -E -e 's/ +/ /g'| cut -d" " -f4`
+NumOfCPUs=$(cat /proc/cpuinfo | grep "processor"|wc -l)
+cpuMHz=$(cat /proc/cpuinfo | grep "cpu MHz"|tail -1|sed -e 's/\t/ /g' |sed -E -e 's/ +/ /g'| cut -d" " -f4)
 
 #RAM
-RAMinkB=`cat /proc/meminfo | grep "MemTotal:" | sed -e 's/\t/ /g'|sed -E -e 's/ +/ /g' | cut -d" " -f2`
+RAMinkB=$(cat /proc/meminfo | grep "MemTotal:" | sed -e 's/\t/ /g'|sed -E -e 's/ +/ /g' | cut -d" " -f2)
 
 #chek if system is Red Hat or other linux
-if [ -e /etc/redhat-release ] 
+osinfo=$(uname -a)
+if [ -e /etc/os-release ]
 then
-  osinfo=`cat /etc/redhat-release`
-else
-  osinfo=`uname -a`
-fi 
+  osinfo=$(grep 'PRETTY_NAME=' /etc/os-release | sed -e 's/PRETTY_NAME=//'|sed -e 's/\"//g')
+fi
+if [ -e /etc/redhat-release ]
+then
+  osinfo=$(cat /etc/redhat-release)
+fi
 
-#Print out the info
-echo "Hostname: `hostname`"
+##print out the date and computer info - timestamp is good to pruve previouse state in case of changes
+date
+echo "Hostname: $(hostname)"
 echo "CPU:      $NumOfCPUs CPUs @ $cpuMHz MHz"
 echo "RAM:      $RAMinkB kB"
 echo "OS:       $osinfo"
-echo "FileSystems: "
+echo "Swaps:"
+echo "------"
+if [ -e /proc/swaps ]
+then
+  cat /proc/swaps
+else
+  echo "  No Swap"
+fi
+echo ""
+echo "FileSystems:"
+echo "------------"
 df -h
+echo ""
+echo "Interfaces:"
+echo "-----------"
+ip addres show up
